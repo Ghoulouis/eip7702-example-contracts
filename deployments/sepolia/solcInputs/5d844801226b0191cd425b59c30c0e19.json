@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/BatchExecutor.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.28;\ncontract BatchExecutor {\n  uint256 public nonce;\n\n  struct Call {\n    address to;\n    uint256 value;\n    bytes data;\n  }\n\n  event BatchExecuted(uint256 indexed nonce, Call[] calls);\n  event CallExecuted(address indexed caller, address indexed to, uint256 value, bytes data);\n\n  function execute(Call[] calldata calls) external payable {\n    // require(msg.sender == address(this), \"Invalid authority\");\n    _executeBatch(calls);\n  }\n\n  function _executeBatch(Call[] calldata calls) internal {\n    uint256 currentNonce = nonce;\n    nonce++;\n\n    for (uint256 i = 0; i < calls.length; i++) {\n      _executeCall(calls[i]);\n    }\n\n    emit BatchExecuted(currentNonce, calls);\n  }\n\n  function _executeCall(Call calldata callItem) internal {\n    (bool success, bytes memory returnData) = callItem.to.call{ value: callItem.value }(callItem.data);\n    require(success, _getRevertMsg(returnData));\n    emit CallExecuted(msg.sender, callItem.to, callItem.value, callItem.data);\n  }\n  function _getRevertMsg(bytes memory returnData) internal pure returns (string memory) {\n    if (returnData.length < 68) return \"Call data reverted\";\n    assembly {\n      returnData := add(returnData, 0x04)\n    }\n    return abi.decode(returnData, (string));\n  }\n\n  receive() external payable {}\n}\n"
+    }
+  },
+  "settings": {
+    "evmVersion": "paris",
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
