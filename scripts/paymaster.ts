@@ -10,6 +10,8 @@ const SEPOLIA_RPC = process.env.SEPOLIA_URL!;
 
 const account = privateKeyToAccount(process.env.PK1! as `0x${string}`);
 
+const account2 = privateKeyToAccount(process.env.PK2! as `0x${string}`);
+
 const IMPLEMENTATION_ADDRESS = "0xcB5494720E9CAe2b184d9C24300405b1132d8D1D";
 
 async function getData() {
@@ -43,11 +45,17 @@ async function getData() {
   return data2;
 }
 
+const walletClient2 = createWalletClient({
+  account: account2,
+  chain: sepolia,
+  transport: http(SEPOLIA_RPC),
+}).extend(eip7702Actions);
+
 const walletClient = createWalletClient({
   account,
   chain: sepolia,
   transport: http(SEPOLIA_RPC),
-});
+}).extend(eip7702Actions);
 
 async function sentBatch() {
   try {
@@ -60,7 +68,8 @@ async function sentBatch() {
 
     let data = await getData();
 
-    const txhHash = await walletClient.sendTransaction({
+    //console.log(data);
+    const txhHash = await walletClient2.sendTransaction({
       to: walletClient.account.address,
       data: data.data as `0x${string}`,
       authorizationList: [authorization],
