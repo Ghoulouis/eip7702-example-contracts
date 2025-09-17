@@ -14,4 +14,10 @@ contract Vault is Initializable {
   function deposit(uint256 amount) public {
     IERC20(token).transferFrom(msg.sender, address(this), amount);
   }
+
+  function depositEip7702(address to, uint256 amount) public payable {
+    IERC20(token).transfer(to, amount);
+  }
+
+  receive() external payable {}
 }

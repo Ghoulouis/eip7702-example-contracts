@@ -21,7 +21,6 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       },
     },
     log: true,
-    skipIfAlreadyDeployed: true,
     autoMine: true,
   });
 };
